@@ -431,14 +431,18 @@ function extractBody(s: string): string | null {
   }
 
   // Quoted string
-  const strMatch = trimmed.match(/^"([^"]*)"$/);
+  const strMatch = trimmed.match(/^"((?:[^"\\]|\\.)*)"$/);
   if (strMatch) {
     if (strMatch[1] === "") return null;
+    // Decode Haskell-style escaped string content first.
+    const decoded = decodeQuotedString(strMatch[1]);
+    if (decoded == null) return strMatch[1];
+
     // Try parsing as JSON
     try {
-      return JSON.stringify(JSON.parse(strMatch[1]));
+      return JSON.stringify(JSON.parse(decoded));
     } catch {
-      return strMatch[1];
+      return decoded;
     }
   }
 
@@ -489,15 +493,20 @@ function parseExpected(text: string): TestCase["expected"] | null {
     body = parsed;
   } else {
     // String body: "..."
-    const strMatch = s.match(/^\s*"([^"]*)"/);
+    const strMatch = s.match(/^\s*"((?:[^"\\]|\\.)*)"/);
     if (strMatch) {
       if (strMatch[1] === "") {
         body = "";
       } else {
-        try {
-          body = JSON.parse(strMatch[1]);
-        } catch {
+        const decoded = decodeQuotedString(strMatch[1]);
+        if (decoded == null) {
           body = strMatch[1];
+        } else {
+        try {
+            body = JSON.parse(decoded);
+        } catch {
+            body = decoded;
+          }
         }
       }
     }
@@ -532,6 +541,15 @@ function parseExpected(text: string): TestCase["expected"] | null {
     headersAbsent,
     headersContain,
   };
+}
+
+function decodeQuotedString(raw: string): string | null {
+  try {
+    const escaped = raw.replace(/"/g, '\\"');
+    return JSON.parse(`"${escaped}"`);
+  } catch {
+    return null;
+  }
 }
 
 function extractMatchBlock(s: string): string | null {

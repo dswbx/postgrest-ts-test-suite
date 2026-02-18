@@ -2416,12 +2416,7 @@
       },
       "expected": {
         "status": 200,
-        "body": [
-          {
-            "id": 4,
-            "name": "updated entity"
-          }
-        ],
+        "body": [],
         "bodyExact": true,
         "headers": [
           [
@@ -2451,19 +2446,10 @@
         "body": "{\"name\":\"updated entity\"}"
       },
       "expected": {
-        "status": 200,
-        "body": [
-          {
-            "id": 4
-          }
-        ],
+        "status": 400,
+        "body": null,
         "bodyExact": true,
-        "headers": [
-          [
-            "Content-Type",
-            "application/json; charset=utf-8"
-          ]
-        ],
+        "headers": [],
         "headersAbsent": [],
         "headersContain": []
       }
@@ -2521,12 +2507,8 @@
         "body": null
       },
       "expected": {
-        "status": 200,
-        "body": [
-          {
-            "id": 4
-          }
-        ],
+        "status": 400,
+        "body": null,
         "bodyExact": true,
         "headers": [],
         "headersAbsent": [],

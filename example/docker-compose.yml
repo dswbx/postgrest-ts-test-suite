@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgis/postgis:17-3.4-alpine
     environment:
       POSTGRES_PASSWORD: postgres
     healthcheck:
@@ -9,7 +9,10 @@ services:
       timeout: 5s
       retries: 10
     ports:
-      - "5432:5432"
+      - target: 5432
+        published: 0
+        protocol: tcp
+        host_ip: 127.0.0.1
 
   postgrest:
     image: postgrest/postgrest
@@ -30,7 +33,10 @@ services:
       PGRST_APP_SETTINGS_EXTERNAL_API_SECRET: "0123456789abcdef"
       PGRST_LOG_LEVEL: crit
     ports:
-      - "3000:3000"
+      - target: 3000
+        published: 0
+        protocol: tcp
+        host_ip: 127.0.0.1
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:3000/ || exit 1"]
       interval: 2s

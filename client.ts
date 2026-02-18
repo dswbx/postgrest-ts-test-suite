@@ -6,6 +6,10 @@ export async function executeRequest(
   target: TestSuiteOptions["target"],
   req: TestCase["request"]
 ): Promise<Response> {
+  // Some upstream specs include raw "#" in query params, but URL fragments
+  // are not sent over HTTP. Preserve intent by encoding it.
+  const normalizedPath = req.path.replace(/#/g, "%23");
+  const path = normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`;
   const headers = new Headers();
   for (const [name, value] of req.headers) {
     headers.append(name, value);
@@ -26,9 +30,9 @@ export async function executeRequest(
   }
 
   if (typeof target === "string") {
-    return fetch(new Request(target + req.path, init));
+    return fetch(new Request(target + path, init));
   }
 
   // Handler function — call directly
-  return target(new Request(`http://localhost${req.path}`, init));
+  return target(new Request(`http://localhost${path}`, init));
 }

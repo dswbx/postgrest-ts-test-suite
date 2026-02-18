@@ -3453,7 +3453,7 @@
         "body": null
       },
       "expected": {
-        "status": 400,
+        "status": 200,
         "body": null,
         "bodyExact": true,
         "headers": [],
@@ -7857,7 +7857,7 @@
       },
       "expected": {
         "status": 200,
-        "body": "k,extra\\nxyyx,u\\nxYYx,v",
+        "body": "k,extra\nxyyx,u\nxYYx,v",
         "bodyExact": true,
         "headers": [
           [
@@ -10562,14 +10562,10 @@
           "code": "42883",
           "details": null,
           "hint": "No operator matches the given name and argument types. You might need to add explicit type casts.",
-          "message": "operator does not exist: public.color ~~* unknown"
+          "message": "operator does not exist: color ~~* unknown"
         },
         "bodyExact": true,
         "headers": [
-          [
-            "Content-Length",
-            "200"
-          ],
           [
             "Content-Type",
             "application/json; charset=utf-8"

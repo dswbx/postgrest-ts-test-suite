@@ -2,34 +2,26 @@
 
 Extracted PostgREST test cases as JSON, runnable with bun:test.
 
-## Setup
+## Run the example (top-to-bottom)
 
 ```bash
 bun install
+bun run example/run.ts
 ```
 
-## Extract test cases from upstream Haskell source
+What `bun run example/run.ts` does:
 
-Downloads PostgREST spec files and converts them to JSON:
+1. Starts Postgres + PostgREST with `example/docker-compose.yml`
+2. Downloads and loads PostgREST fixture SQL (`example/setup.ts`)
+3. Runs `example/postgrest.test.ts`
+4. Tears everything down
 
-```bash
-# 1. Download spec files (requires gh CLI)
-mkdir -p upstream
-for f in QuerySpec.hs AndOrParamsSpec.hs JsonOperatorSpec.hs RangeSpec.hs SingularSpec.hs; do
-  gh api repos/PostgREST/postgrest/contents/test/spec/Feature/Query/$f \
-    -H "Accept: application/vnd.github.raw+json" > upstream/$f
-done
-# Also grab Main.hs and SpecHelper.hs for config/helper resolution
-for f in Main.hs SpecHelper.hs; do
-  gh api repos/PostgREST/postgrest/contents/test/spec/$f \
-    -H "Accept: application/vnd.github.raw+json" > upstream/$f
-done
+Requirements:
 
-# 2. Run extraction
-bun run extract/run.ts ./upstream/ ./specs/
-```
-
-Output goes to `specs/` as JSON files + `_flagged.json` + `_stats.json`.
+- `docker` (with Compose support)
+- `gh` (GitHub CLI, used to fetch fixture SQL)
+- `psql` (PostgreSQL client)
+- `bun`
 
 ## Use in your project
 
@@ -56,7 +48,38 @@ definePostgrestTests({
 });
 ```
 
-## Run tests
+## Development
+
+### Setup
+
+```bash
+bun install
+```
+
+### Extract test cases from upstream Haskell source
+
+Downloads PostgREST spec files and converts them to JSON:
+
+```bash
+# 1. Download spec files (requires gh CLI)
+mkdir -p upstream
+for f in QuerySpec.hs AndOrParamsSpec.hs JsonOperatorSpec.hs RangeSpec.hs SingularSpec.hs; do
+  gh api repos/PostgREST/postgrest/contents/test/spec/Feature/Query/$f \
+    -H "Accept: application/vnd.github.raw+json" > upstream/$f
+done
+# Also grab Main.hs and SpecHelper.hs for config/helper resolution
+for f in Main.hs SpecHelper.hs; do
+  gh api repos/PostgREST/postgrest/contents/test/spec/$f \
+    -H "Accept: application/vnd.github.raw+json" > upstream/$f
+done
+
+# 2. Run extraction
+bun run extract/run.ts ./upstream/ ./specs/
+```
+
+Output goes to `specs/` as JSON files + `_flagged.json` + `_stats.json`.
+
+### Run tests
 
 ```bash
 bun test                        # all tests
@@ -64,7 +87,7 @@ bun test test/smoke.test.ts     # runtime smoke tests
 bun test test/extraction.test.ts # validate extracted JSON
 ```
 
-## Project structure
+### Project structure
 
 ```
 extract/          Haskell→JSON parser (one-time extraction)
