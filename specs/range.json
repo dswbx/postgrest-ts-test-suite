@@ -1,0 +1,1838 @@
+{
+  "file": "Range",
+  "config": "default",
+  "tests": [
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "without range headers",
+        "with response under server size limit",
+        "returns whole range with status 200"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?min=0&max=15",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": null,
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "without range headers",
+        "when I don't want the count",
+        "returns range Content-Range with */* for empty range"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?min=2&max=2",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/*"
+          ],
+          [
+            "Content-Length",
+            "2"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "without range headers",
+        "when I don't want the count",
+        "returns range Content-Range with range/*"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?order=id&min=0&max=15",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          },
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          },
+          {
+            "id": 6
+          },
+          {
+            "id": 7
+          },
+          {
+            "id": 8
+          },
+          {
+            "id": 9
+          },
+          {
+            "id": 10
+          },
+          {
+            "id": 11
+          },
+          {
+            "id": 12
+          },
+          {
+            "id": 13
+          },
+          {
+            "id": 14
+          },
+          {
+            "id": 15
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-14/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "without range headers",
+        "of invalid range",
+        "refuses a range with nonzero start when there are no items"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?offset=1&min=2&max=2",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 1 was requested, but there are only 0 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/0"
+          ],
+          [
+            "Content-Length",
+            "144"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "without range headers",
+        "of invalid range",
+        "refuses a range requesting start past last item"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?offset=100&min=0&max=15",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 100 was requested, but there are only 15 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/15"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "with range headers",
+        "of acceptable range",
+        "understands open-ended ranges"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?min=0&max=15",
+        "headers": [
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "0-"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": null,
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "with range headers",
+        "of acceptable range",
+        "returns an empty body when there are no results"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?min=2&max=2",
+        "headers": [
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "0-1"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "with range headers",
+        "of invalid range",
+        "fails with 416 for offside range"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?min=2&max=2",
+        "headers": [
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "1-0"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "The lower boundary must be lower than or equal to the upper boundary in the Range header.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "with range headers",
+        "of invalid range",
+        "refuses a range with nonzero start when there are no items"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?min=2&max=2",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ],
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "1-2"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 1 was requested, but there are only 0 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/0"
+          ],
+          [
+            "Content-Length",
+            "144"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /rpc/getitemrange",
+        "with range headers",
+        "of invalid range",
+        "refuses a range requesting start past last item"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/getitemrange?min=0&max=15",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ],
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "100-199"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 100 was requested, but there are only 15 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/15"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "without range headers",
+        "with response under server size limit",
+        "returns whole range with status 200"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": null,
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "without range headers",
+        "count with an empty body",
+        "returns empty body with Content-Range */0"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?id=eq.0",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/0"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "without range headers",
+        "when I don't want the count",
+        "returns range Content-Range with /*"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/menagerie",
+        "headers": [
+          [
+            "Prefer",
+            "count=none"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "without range headers",
+        "when I don't want the count",
+        "returns range Content-Range with range/*"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?order=id",
+        "headers": [
+          [
+            "Prefer",
+            "count=none"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          },
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          },
+          {
+            "id": 6
+          },
+          {
+            "id": 7
+          },
+          {
+            "id": 8
+          },
+          {
+            "id": 9
+          },
+          {
+            "id": 10
+          },
+          {
+            "id": 11
+          },
+          {
+            "id": 12
+          },
+          {
+            "id": 13
+          },
+          {
+            "id": 14
+          },
+          {
+            "id": 15
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-14/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "without range headers",
+        "when I don't want the count",
+        "returns range Content-Range with range/* even using other filters"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?id=eq.1&order=id",
+        "headers": [
+          [
+            "Prefer",
+            "count=none"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-0/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "no parameters return everything"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&order=id.asc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          },
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          },
+          {
+            "id": 6
+          },
+          {
+            "id": 7
+          },
+          {
+            "id": 8
+          },
+          {
+            "id": 9
+          },
+          {
+            "id": 10
+          },
+          {
+            "id": 11
+          },
+          {
+            "id": 12
+          },
+          {
+            "id": 13
+          },
+          {
+            "id": 14
+          },
+          {
+            "id": 15
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-14/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "top level limit with parameter"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&order=id.asc&limit=3",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-2/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "headers override get parameters"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&order=id.asc&limit=3",
+        "headers": [
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "0-1"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-1/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "limit works on all levels"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/clients?select=id,projects(id,tasks(id))&order=id.asc&limit=1&projects.order=id.asc&projects.limit=2&projects.tasks.order=id.asc&projects.tasks.limit=1",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1,
+            "projects": [
+              {
+                "id": 1,
+                "tasks": [
+                  {
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "id": 2,
+                "tasks": [
+                  {
+                    "id": 3
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-0/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "limit and offset works on first level (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&order=id.asc&limit=3&offset=2",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 3
+          },
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "2-4/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "limit and offset works on first level (2)"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/items?select=id&order=id.asc&limit=3&offset=2",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "2-4/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "works alongside order by with nulls order"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/clients?select=id,projects(id,tasks(id))&order=id.asc.nullslast&limit=1&projects.order=id.asc.nullsfirst&projects.limit=2",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1,
+            "projects": [
+              {
+                "id": 1,
+                "tasks": [
+                  {
+                    "id": 1
+                  },
+                  {
+                    "id": 2
+                  }
+                ]
+              },
+              {
+                "id": 2,
+                "tasks": [
+                  {
+                    "id": 3
+                  },
+                  {
+                    "id": 4
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-0/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "succeeds if offset equals 0 as a no-op",
+        "no items (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?offset=0&id=eq.0",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "succeeds if offset equals 0 as a no-op",
+        "no items (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?offset=0&id=eq.0",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/0"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "succeeds if offset equals 0 as a no-op",
+        "one or more items"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&offset=0&order=id",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          },
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          },
+          {
+            "id": 6
+          },
+          {
+            "id": 7
+          },
+          {
+            "id": 8
+          },
+          {
+            "id": 9
+          },
+          {
+            "id": 10
+          },
+          {
+            "id": 11
+          },
+          {
+            "id": 12
+          },
+          {
+            "id": 13
+          },
+          {
+            "id": 14
+          },
+          {
+            "id": 15
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-14/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "succeeds if offset is negative as a no-op"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&offset=-4&order=id",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          },
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          },
+          {
+            "id": 6
+          },
+          {
+            "id": 7
+          },
+          {
+            "id": 8
+          },
+          {
+            "id": 9
+          },
+          {
+            "id": 10
+          },
+          {
+            "id": 11
+          },
+          {
+            "id": 12
+          },
+          {
+            "id": 13
+          },
+          {
+            "id": 14
+          },
+          {
+            "id": 15
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-14/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "succeeds and returns an empty array if limit equals 0"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&limit=0",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "fails if limit is negative"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&limit=-1",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "Limit should be greater than or equal to zero.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "of invalid range",
+        "refuses a range with nonzero start when there are no items"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/menagerie?offset=1",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 1 was requested, but there are only 0 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/0"
+          ],
+          [
+            "Content-Length",
+            "144"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with limit/offset parameters",
+        "of invalid range",
+        "refuses a range requesting start past last item"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?offset=100",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 100 was requested, but there are only 15 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/15"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "obtains a filtered range (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?select=id&id=gt.8",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 206,
+        "body": [
+          {
+            "id": 9
+          },
+          {
+            "id": 10
+          },
+          {
+            "id": 11
+          },
+          {
+            "id": 12
+          },
+          {
+            "id": 13
+          },
+          {
+            "id": 14
+          },
+          {
+            "id": 15
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-6/8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "obtains a filtered range (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/child_entities?select=id&id=gt.3",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 206,
+        "body": [
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          },
+          {
+            "id": 6
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-2/4"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "obtains a filtered range (3)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/getallprojects_view?select=id&id=lt.3",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 206,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "0-1/673"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "obtains the full range (1)"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/items",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "0-14/15"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "obtains the full range (2)"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/child_entities",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "0-5/6"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "obtains the full range (3)"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/getallprojects_view",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 206,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "0-4/2019"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "ignores limit/offset on the planned count (1)"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/items?limit=2&offset=3",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 206,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "3-4/15"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "ignores limit/offset on the planned count (2)"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/child_entities?limit=2",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 206,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "0-1/6"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "ignores limit/offset on the planned count (3)"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/getallprojects_view?limit=2",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 206,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "0-1/2019"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "when count=planned",
+        "works with two levels"
+      ],
+      "request": {
+        "method": "HEAD",
+        "path": "/child_entities?select=*,entities(*)",
+        "headers": [
+          [
+            "Prefer",
+            "count=planned"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "Content-Range",
+            "0-5/6"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with range headers",
+        "of acceptable range",
+        "understands open-ended ranges"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items",
+        "headers": [
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "0-"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": null,
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with range headers",
+        "of acceptable range",
+        "returns an empty body when there are no results"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/menagerie",
+        "headers": [
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "0-1"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/*"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with range headers",
+        "of invalid range",
+        "fails with 416 for offside range"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items",
+        "headers": [
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "1-0"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "The lower boundary must be lower than or equal to the upper boundary in the Range header.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with range headers",
+        "of invalid range",
+        "refuses a range with nonzero start when there are no items"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/menagerie",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ],
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "1-2"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 1 was requested, but there are only 0 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/0"
+          ],
+          [
+            "Content-Length",
+            "144"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "GET /items",
+        "with range headers",
+        "of invalid range",
+        "refuses a range requesting start past last item"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items",
+        "headers": [
+          [
+            "Prefer",
+            "count=exact"
+          ],
+          [
+            "Range-Unit",
+            "items"
+          ],
+          [
+            "Range",
+            "100-199"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 416,
+        "body": {
+          "message": "Requested range not satisfiable",
+          "code": "PGRST103",
+          "details": "An offset of 100 was requested, but there are only 15 rows.",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/15"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    }
+  ]
+}

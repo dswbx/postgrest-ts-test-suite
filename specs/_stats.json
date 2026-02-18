@@ -1,0 +1,32 @@
+{
+  "totalFiles": 5,
+  "totalTests": 501,
+  "totalFlagged": 20,
+  "files": [
+    {
+      "name": "AndOrParamsSpec",
+      "tests": 73,
+      "flagged": 0
+    },
+    {
+      "name": "JsonOperatorSpec",
+      "tests": 65,
+      "flagged": 0
+    },
+    {
+      "name": "QuerySpec",
+      "tests": 299,
+      "flagged": 4
+    },
+    {
+      "name": "RangeSpec",
+      "tests": 45,
+      "flagged": 6
+    },
+    {
+      "name": "SingularSpec",
+      "tests": 19,
+      "flagged": 10
+    }
+  ]
+}

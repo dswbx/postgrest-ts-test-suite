@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  postgrest:
+    image: postgrest/postgrest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@postgres:5432/postgres
+      PGRST_DB_SCHEMAS: test
+      PGRST_DB_ANON_ROLE: postgrest_test_anonymous
+      PGRST_JWT_SECRET: reallyreallyreallyreallyverysafe
+      PGRST_DB_PRE_REQUEST: test.switch_role
+      PGRST_DB_POOL: "10"
+      PGRST_DB_POOL_ACQUISITION_TIMEOUT: "10"
+      PGRST_SERVER_TIMING_ENABLED: "true"
+      PGRST_DB_TX_END: rollback-allow-override
+      PGRST_APP_SETTINGS_APP_HOST: localhost
+      PGRST_APP_SETTINGS_EXTERNAL_API_SECRET: "0123456789abcdef"
+      PGRST_LOG_LEVEL: crit
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/ || exit 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 15

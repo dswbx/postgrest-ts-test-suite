@@ -1,0 +1,223 @@
+[
+  {
+    "description": [
+      "Accept headers",
+      "specific available preference should override */*"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 1201,
+    "source": "it \"specific available preference should override */*\" $ do\n      r <- request methodGet \"/simple_pk\"\n              (acceptHdrs \"text/csv, */*\") \"\"\n      liftIO $ do\n        let respHeaders = simpleHeaders r\n        respHeaders `shouldSatisfy` matchHeader\n          \"Content-Type\" \"text/csv; charset=utf-8\"",
+    "file": "QuerySpec"
+  },
+  {
+    "description": [
+      "Accept headers",
+      "honors client preference even when opposite of server preference"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 1209,
+    "source": "it \"honors client preference even when opposite of server preference\" $ do\n      r <- request methodGet \"/simple_pk\"\n              (acceptHdrs \"text/csv, application/json\") \"\"\n      liftIO $ do\n        let respHeaders = simpleHeaders r\n        respHeaders `shouldSatisfy` matchHeader\n          \"Content-Type\" \"text/csv; charset=utf-8\"",
+    "file": "QuerySpec"
+  },
+  {
+    "description": [
+      "Canonical location",
+      "Omits question mark when there are no params"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 1241,
+    "source": "it \"Omits question mark when there are no params\" $ do\n      r <- get \"/simple_pk\"\n      liftIO $ do\n        let respHeaders = simpleHeaders r\n        respHeaders `shouldSatisfy` matchHeader\n          \"Content-Location\" \"/simple_pk\"",
+    "file": "QuerySpec"
+  },
+  {
+    "description": [
+      "shouldn't produce a Content-Profile header since only a single schema is exposed"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 1422,
+    "source": "it \"shouldn't produce a Content-Profile header since only a single schema is exposed\" $ do\n    r <- get \"/items\"\n    liftIO $ do\n      let respHeaders = simpleHeaders r\n      respHeaders `shouldSatisfy` noProfileHeader",
+    "file": "QuerySpec"
+  },
+  {
+    "description": [
+      "GET /rpc/getitemrange",
+      "with range headers",
+      "of acceptable range",
+      "succeeds with partial content"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 68,
+    "source": "it \"succeeds with partial content\" $ do\n          r <- request methodGet  \"/rpc/getitemrange?min=0&max=15\"\n                       (rangeHdrs $ ByteRangeFromTo 0 1) mempty\n          liftIO $ do\n            simpleHeaders r `shouldSatisfy` matchHeader \"Content-Range\" \"0-1/*\"\n            simpleHeaders r `shouldSatisfy` matchHeader \"Content-Length\" \"22\"\n            simpleStatus r `shouldBe` ok200",
+    "file": "RangeSpec"
+  },
+  {
+    "description": [
+      "GET /rpc/getitemrange",
+      "with range headers",
+      "of acceptable range",
+      "allows one-item requests"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 89,
+    "source": "it \"allows one-item requests\" $ do\n          r <- request methodGet  \"/rpc/getitemrange?min=0&max=15\"\n                       (rangeHdrs $ ByteRangeFromTo 0 0) mempty\n          liftIO $ do\n            simpleHeaders r `shouldSatisfy`\n              matchHeader \"Content-Range\" \"0-0/*\"\n            simpleStatus r `shouldBe` ok200",
+    "file": "RangeSpec"
+  },
+  {
+    "description": [
+      "GET /rpc/getitemrange",
+      "with range headers",
+      "of acceptable range",
+      "handles ranges beyond collection length via truncation"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 97,
+    "source": "it \"handles ranges beyond collection length via truncation\" $ do\n          r <- request methodGet  \"/rpc/getitemrange?min=0&max=15\"\n                       (rangeHdrs $ ByteRangeFromTo 10 100) mempty\n          liftIO $ do\n            simpleHeaders r `shouldSatisfy`\n              matchHeader \"Content-Range\" \"10-14/*\"\n            simpleStatus r `shouldBe` ok200",
+    "file": "RangeSpec"
+  },
+  {
+    "description": [
+      "GET /items",
+      "with range headers",
+      "of acceptable range",
+      "succeeds with partial content"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 414,
+    "source": "it \"succeeds with partial content\" $ do\n          r <- request methodGet  \"/items\"\n                       (rangeHdrs $ ByteRangeFromTo 0 1) \"\"\n          liftIO $ do\n            simpleHeaders r `shouldSatisfy`\n              matchHeader \"Content-Range\" \"0-1/*\"\n            simpleStatus r `shouldBe` ok200",
+    "file": "RangeSpec"
+  },
+  {
+    "description": [
+      "GET /items",
+      "with range headers",
+      "of acceptable range",
+      "allows one-item requests"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 435,
+    "source": "it \"allows one-item requests\" $ do\n          r <- request methodGet  \"/items\"\n                       (rangeHdrs $ ByteRangeFromTo 0 0) \"\"\n          liftIO $ do\n            simpleHeaders r `shouldSatisfy`\n              matchHeader \"Content-Range\" \"0-0/*\"\n            simpleStatus r `shouldBe` ok200",
+    "file": "RangeSpec"
+  },
+  {
+    "description": [
+      "GET /items",
+      "with range headers",
+      "of acceptable range",
+      "handles ranges beyond collection length via truncation"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 443,
+    "source": "it \"handles ranges beyond collection length via truncation\" $ do\n          r <- request methodGet  \"/items\"\n                       (rangeHdrs $ ByteRangeFromTo 10 100) \"\"\n          liftIO $ do\n            simpleHeaders r `shouldSatisfy`\n              matchHeader \"Content-Range\" \"10-14/*\"\n            simpleStatus r `shouldBe` ok200",
+    "file": "RangeSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when updating rows",
+      "raises an error for multiple rows"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 68,
+    "source": "it \"raises an error for multiple rows\" $ do\n        request methodPatch \"/addresses\"\n            [(\"Prefer\", \"tx=commit\"), singular]\n            [json| { address: \"zzz\" } |]\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 4 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- the rows should not be updated, either\n        get \"/addresses?id=eq.1\"\n          `shouldRespondWith`\n            [json|[{\"id\":1,\"address\":\"address 1\"}]|]",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when updating rows",
+      "raises an error for multiple rows with return=rep"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 83,
+    "source": "it \"raises an error for multiple rows with return=rep\" $ do\n        request methodPatch \"/addresses\"\n            [(\"Prefer\", \"tx=commit\"), (\"Prefer\", \"return=representation\"), singular]\n            [json| { address: \"zzz\" } |]\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 4 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- the rows should not be updated, either\n        get \"/addresses?id=eq.1\"\n          `shouldRespondWith`\n            [json|[{\"id\":1,\"address\":\"address 1\"}]|]",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when creating rows",
+      "raises an error when attempting to create multiple entities"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 139,
+    "source": "it \"raises an error when attempting to create multiple entities\" $ do\n        request methodPost \"/addresses\"\n            [(\"Prefer\", \"tx=commit\"), singular]\n            [json| [ { id: 200, address: \"xxx\" }, { id: 201, address: \"yyy\" } ] |]\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 2 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- the rows should not exist, either\n        get \"/addresses?id=eq.200\"\n          `shouldRespondWith`\n            \"[]\"",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when creating rows",
+      "raises an error when attempting to create multiple entities with return=rep"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 154,
+    "source": "it \"raises an error when attempting to create multiple entities with return=rep\" $ do\n        request methodPost \"/addresses\"\n            [(\"Prefer\", \"tx=commit\"), (\"Prefer\", \"return=representation\"), singular]\n            [json| [ { id: 202, address: \"xxx\" }, { id: 203, address: \"yyy\" } ] |]\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 2 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- the rows should not exist, either\n        get \"/addresses?id=eq.202\"\n          `shouldRespondWith`\n            \"[]\"",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when creating rows",
+      "raises an error regardless of return=minimal"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 169,
+    "source": "it \"raises an error regardless of return=minimal\" $ do\n        request methodPost \"/addresses\"\n            [(\"Prefer\", \"tx=commit\"), (\"Prefer\", \"return=minimal\"), singular]\n            [json| [ { id: 204, address: \"xxx\" }, { id: 205, address: \"yyy\" } ] |]\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 2 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- the rows should not exist, either\n        get \"/addresses?id=eq.204\"\n          `shouldRespondWith`\n            \"[]\"",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when deleting rows",
+      "works for one row with return=rep"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 205,
+    "source": "it \"works for one row with return=rep\" $ do\n        p <- request methodDelete\n          \"/items?id=eq.11\"\n          [(\"Prefer\", \"return=representation\"), singular] \"\"\n        liftIO $ simpleBody p `shouldBe` [json|{\"id\":11}|]",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when deleting rows",
+      "works for one row with return=minimal"
+    ],
+    "reason": "liftIO — side-effect",
+    "line": 211,
+    "source": "it \"works for one row with return=minimal\" $ do\n        p <- request methodDelete\n          \"/items?id=eq.12\"\n          [(\"Prefer\", \"return=minimal\"), singular] \"\"\n        liftIO $ simpleBody p `shouldBe` \"\"",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when deleting rows",
+      "raises an error when attempting to delete multiple entities"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 217,
+    "source": "it \"raises an error when attempting to delete multiple entities\" $ do\n        request methodDelete \"/items?id=gt.0&id=lt.6\"\n            [(\"Prefer\", \"tx=commit\"), singular]\n            \"\"\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 5 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- the rows should still exist\n        get \"/items?id=gt.0&id=lt.6&order=id\"\n          `shouldRespondWith`\n            [json| [{\"id\":1},{\"id\":2},{\"id\":3},{\"id\":4},{\"id\":5}] |]\n            { matchStatus  = 200\n            , matchHeaders = [\"Content-Range\" <:> \"0-4/*\"]\n            }",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when deleting rows",
+      "raises an error when attempting to delete multiple entities with return=rep"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 235,
+    "source": "it \"raises an error when attempting to delete multiple entities with return=rep\" $ do\n        request methodDelete \"/items?id=gt.5&id=lt.11\"\n            [(\"Prefer\", \"tx=commit\"), (\"Prefer\", \"return=representation\"), singular] \"\"\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 5 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- the rows should still exist\n        get \"/items?id=gt.5&id=lt.11\"\n          `shouldRespondWith` [json| [{\"id\":6},{\"id\":7},{\"id\":8},{\"id\":9},{\"id\":10}] |]\n            { matchStatus  = 200\n            , matchHeaders = [\"Content-Range\" <:> \"0-4/*\"]\n            }",
+    "file": "SingularSpec"
+  },
+  {
+    "description": [
+      "Requesting singular json object",
+      "when calling a stored proc",
+      "fails for multiple rows with rolled back changes"
+    ],
+    "reason": "multiple shouldRespondWith with mutations",
+    "line": 302,
+    "source": "it \"fails for multiple rows with rolled back changes\" $ do\n        post \"/rpc/getproject?select=id,name\"\n            [json| {\"id\": 1} |]\n          `shouldRespondWith`\n            [json|[{\"id\":1,\"name\":\"Windows 7\"}]|]\n\n        request methodPost \"/rpc/setprojects\"\n            [(\"Prefer\", \"tx=commit\"), singular]\n            [json| {\"id_l\": 1, \"id_h\": 2, \"name\": \"changed\"} |]\n          `shouldRespondWith`\n            [json|{\"details\":\"The result contains 2 rows\",\"message\":\"Cannot coerce the result to a single JSON object\",\"code\":\"PGRST116\",\"hint\":null}|]\n            { matchStatus  = 406\n            , matchHeaders = [ matchContentTypeJson ]\n            }\n\n        -- should rollback function\n        post \"/rpc/getproject?select=id,name\"\n            [json| {\"id\": 1} |]\n          `shouldRespondWith`\n            [json|[{\"id\":1,\"name\":\"Windows 7\"}]|]",
+    "file": "SingularSpec"
+  }
+]

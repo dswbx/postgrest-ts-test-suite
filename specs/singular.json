@@ -1,0 +1,698 @@
+{
+  "file": "Singular",
+  "config": "default",
+  "tests": [
+    {
+      "description": [
+        "Requesting singular json object",
+        "with GET request",
+        "fails for zero rows"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?id=gt.0&id=lt.0",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 406,
+        "body": null,
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "with GET request",
+        "will select an existing object (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?id=eq.5",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": {
+          "id": 5
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/vnd.pgrst.object+json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "with GET request",
+        "will select an existing object (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?id=eq.5",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": {
+          "id": 5
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/vnd.pgrst.object+json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "with GET request",
+        "can combine multiple prefer values"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/items?id=eq.5",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ],
+          [
+            "Prefer",
+            "count=none"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": {
+          "id": 5
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/vnd.pgrst.object+json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "with GET request",
+        "can shape plurality singular object routes"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/projects_view?id=eq.1&select=id,name,clients(*),tasks(id,name)",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": {
+          "id": 1,
+          "name": "Windows 7",
+          "clients": {
+            "id": 1,
+            "name": "Microsoft"
+          },
+          "tasks": [
+            {
+              "id": 1,
+              "name": "Design w7"
+            },
+            {
+              "id": 2,
+              "name": "Code w7"
+            }
+          ]
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/vnd.pgrst.object+json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when updating rows",
+        "works for one row with return=rep"
+      ],
+      "request": {
+        "method": "PATCH",
+        "path": "/addresses?id=eq.1",
+        "headers": [
+          [
+            "Prefer",
+            "return=representation"
+          ],
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{\"address\":\"B Street\"}"
+      },
+      "expected": {
+        "status": 200,
+        "body": {
+          "id": 1,
+          "address": "B Street"
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/vnd.pgrst.object+json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when updating rows",
+        "works for one row with return=minimal"
+      ],
+      "request": {
+        "method": "PATCH",
+        "path": "/addresses?id=eq.1",
+        "headers": [
+          [
+            "Prefer",
+            "return=minimal"
+          ],
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{\"address\":\"C Street\"}"
+      },
+      "expected": {
+        "status": 204,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Preference-Applied",
+            "return=minimal"
+          ]
+        ],
+        "headersAbsent": [
+          "Content-Type"
+        ],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when updating rows",
+        "raises an error for zero rows"
+      ],
+      "request": {
+        "method": "PATCH",
+        "path": "/items?id=gt.0&id=lt.0",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{\"id\":1}"
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 0 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when updating rows",
+        "raises an error for zero rows with return=rep"
+      ],
+      "request": {
+        "method": "PATCH",
+        "path": "/items?id=gt.0&id=lt.0",
+        "headers": [
+          [
+            "Prefer",
+            "return=representation"
+          ],
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{\"id\":1}"
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 0 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when creating rows",
+        "works for one row with return=rep"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/addresses",
+        "headers": [
+          [
+            "Prefer",
+            "return=representation"
+          ],
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "[{\"id\":102,\"address\":\"xxx\"}]"
+      },
+      "expected": {
+        "status": 201,
+        "body": {
+          "id": 102,
+          "address": "xxx"
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/vnd.pgrst.object+json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when creating rows",
+        "works for one row with return=minimal"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/addresses",
+        "headers": [
+          [
+            "Prefer",
+            "return=minimal"
+          ],
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "[{\"id\":103,\"address\":\"xxx\"}]"
+      },
+      "expected": {
+        "status": 201,
+        "body": "",
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Range",
+            "*/*"
+          ],
+          [
+            "Preference-Applied",
+            "return=minimal"
+          ]
+        ],
+        "headersAbsent": [
+          "Content-Type"
+        ],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when creating rows",
+        "raises an error when creating zero entities"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/addresses",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "[]"
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 0 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when creating rows",
+        "raises an error when creating zero entities with return=rep"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/addresses",
+        "headers": [
+          [
+            "Prefer",
+            "return=representation"
+          ],
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "[]"
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 0 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when deleting rows",
+        "raises an error when deleting zero entities"
+      ],
+      "request": {
+        "method": "DELETE",
+        "path": "/items?id=lt.0",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 0 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when deleting rows",
+        "raises an error when deleting zero entities with return=rep"
+      ],
+      "request": {
+        "method": "DELETE",
+        "path": "/items?id=lt.0",
+        "headers": [
+          [
+            "Prefer",
+            "return=representation"
+          ],
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": null
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 0 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when calling a stored proc",
+        "fails for zero rows"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/rpc/getproject",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{\"id\":9999999}"
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 0 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when calling a stored proc",
+        "succeeds for scalar result"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/rpc/sayhello",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{\"name\":\"world\"}"
+      },
+      "expected": {
+        "status": 200,
+        "body": null,
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when calling a stored proc",
+        "returns a single object for json proc"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/rpc/getproject",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{\"id\":1}"
+      },
+      "expected": {
+        "status": 200,
+        "body": {
+          "id": 1,
+          "name": "Windows 7",
+          "client_id": 1
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/vnd.pgrst.object+json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Requesting singular json object",
+        "when calling a stored proc",
+        "fails for multiple rows"
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/rpc/getallprojects",
+        "headers": [
+          [
+            "Accept",
+            "application/vnd.pgrst.object+json"
+          ]
+        ],
+        "body": "{}"
+      },
+      "expected": {
+        "status": 406,
+        "body": {
+          "details": "The result contains 5 rows",
+          "message": "Cannot coerce the result to a single JSON object",
+          "code": "PGRST116",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    }
+  ]
+}

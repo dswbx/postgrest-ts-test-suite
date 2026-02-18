@@ -1,0 +1,2094 @@
+{
+  "file": "JsonOperator",
+  "config": "default",
+  "tests": [
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "obtains a json subfield one level with casting"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/complex_items?id=eq.1&select=settings->>foo::json",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "foo": {
+              "int": 1,
+              "bar": "baz"
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "renames json subfield one level with casting"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/complex_items?id=eq.1&select=myFoo:settings->>foo::json",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "myFoo": {
+              "int": 1,
+              "bar": "baz"
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "fails on bad casting (data of the wrong format)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/complex_items?select=settings->foo->>bar::integer",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 400,
+        "body": {
+          "hint": null,
+          "details": null,
+          "code": "22P02",
+          "message": "invalid input syntax for type integer: \"baz\""
+        },
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "obtains a json subfield two levels (string)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/complex_items?id=eq.1&select=settings->foo->>bar",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "bar": "baz"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "renames json subfield two levels (string)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/complex_items?id=eq.1&select=myBar:settings->foo->>bar",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "myBar": "baz"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "obtains a json subfield two levels with casting (int)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/complex_items?id=eq.1&select=settings->foo->>int::integer",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "int": 1
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "renames json subfield two levels with casting (int)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/complex_items?id=eq.1&select=myInt:settings->foo->>int::integer",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "myInt": 1
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "accepts non reserved special characters in the key's name"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?id=eq.10&select=data->!@#$%^%26*_d->>!@#$%^%26*_e::integer",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "!@#$%^&*_e": 3
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "fails when there is a reserved special character in the key's name"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?id=eq.10&select=data->(!@#$%^%26*_d->>!@#$%^%26*_e::integer",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 400,
+        "body": {
+          "code": "PGRST100",
+          "details": "unexpected \"(\" expecting \"-\", digit or any non reserved character different from: .,>()",
+          "hint": null,
+          "message": "\"failed to parse select parameter (data->(!@#$%^&*_d->>!@#$%^&*_e::integer)\" (line 1, column 7)"
+        },
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "fails when a double arrow ->> is followed with a single arrow -> (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->>c->1",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 404,
+        "body": {
+          "hint": "No operator matches the given name and argument types. You might need to add explicit type casts.",
+          "details": null,
+          "code": "42883",
+          "message": "operator does not exist: text -> integer"
+        },
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "fails when a double arrow ->> is followed with a single arrow -> (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->>c->b",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 404,
+        "body": {
+          "hint": "No operator matches the given name and argument types. You might need to add explicit type casts.",
+          "details": null,
+          "code": "42883",
+          "message": "operator does not exist: text -> unknown"
+        },
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get array of ints and alias/cast it (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->>0::int&id=in.(1,2)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": 1
+          },
+          {
+            "data": 4
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get array of ints and alias/cast it (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=idx0:data->>0::int,idx1:data->>1::int&id=in.(1,2)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "idx0": 1,
+            "idx1": 2
+          },
+          {
+            "idx0": 4,
+            "idx1": 5
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get nested array of ints (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->>1::int&id=in.(3,4)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": 8
+          },
+          {
+            "data": 7
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get nested array of ints (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->0->>1::int&id=in.(3,4)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": null
+          },
+          {
+            "data": 6
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get array of objects (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->>a&id=in.(5,6)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "a": "A"
+          },
+          {
+            "a": "[1,2,3]"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get array of objects (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->a->>2&id=in.(5,6)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "a": null
+          },
+          {
+            "a": "3"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get array in object keys (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->c->>0::json&id=in.(7,8)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "c": 1
+          },
+          {
+            "c": {
+              "d": [
+                4,
+                5,
+                6,
+                7,
+                8
+              ]
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "can get array in object keys (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->c->0->d->>4::int&id=in.(7,8)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "d": null
+          },
+          {
+            "d": 8
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "with array index",
+        "only treats well formed numbers as indexes"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->0xy1->1->23-xy-45->1->xy-6->>0::int&id=eq.9",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "xy-6": 3
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "finishing json path with single arrow ->",
+        "works when finishing with a key (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->c&id=in.(7,8)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "c": [
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "c": [
+              {
+                "d": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "finishing json path with single arrow ->",
+        "works when finishing with a key (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->a&id=in.(5,6)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "a": "A"
+          },
+          {
+            "a": [
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "finishing json path with single arrow ->",
+        "works when finishing with an index (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->a&id=in.(5,6)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "a": "A"
+          },
+          {
+            "a": [
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "finishing json path with single arrow ->",
+        "works when finishing with an index (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->c->0->d&id=eq.8",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "d": [
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "obtains a composite type field (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/fav_numbers?select=num->i",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "i": 0.5
+          },
+          {
+            "i": 0.6
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "obtains a composite type field (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/fav_numbers?select=num->>i",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "i": "0.5"
+          },
+          {
+            "i": "0.6"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "obtains an array item (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=a:numbers->0,b:numbers->1,c:numbers_mult->0->0,d:numbers_mult->1->2",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "a": 1,
+            "b": 2,
+            "c": 1,
+            "d": 6
+          },
+          {
+            "a": 11,
+            "b": 12,
+            "c": 11,
+            "d": 16
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Shaping response with select parameter",
+        "obtains an array item (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=a:numbers->>0,b:numbers->>1,c:numbers_mult->0->>0,d:numbers_mult->1->>2",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "a": "1",
+            "b": "2",
+            "c": "1",
+            "d": "6"
+          },
+          {
+            "a": "11",
+            "b": "12",
+            "c": "11",
+            "d": "16"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by properties inside json column (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_table?data->foo->>bar=eq.baz",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": {
+              "id": 1,
+              "foo": {
+                "bar": "baz"
+              }
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by properties inside json column (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_table?data->foo->>bar=eq.fake",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by properties inside json column using not"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_table?data->foo->>bar=not.eq.baz",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by properties inside json column using ->>"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_table?data->>id=eq.1",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": {
+              "id": 1,
+              "foo": {
+                "bar": "baz"
+              }
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can be filtered with and/or"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/grandchild_entities?or=(jsonb_col->a->>b.eq.foo, jsonb_col->>b.eq.bar)&select=id",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 4
+          },
+          {
+            "id": 5
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter when the key's name has non reserved special characters"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->!@#$%^%26*_d&data->!@#$%^%26*_d->>!@#$%^%26*_e=eq.3",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "!@#$%^&*_d": {
+              "!@#$%^&*_e": 3
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by array indexes (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->>0=eq.1",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by array indexes (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->1->>2=eq.13",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              [
+                9,
+                8,
+                7
+              ],
+              [
+                11,
+                12,
+                13
+              ]
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by array indexes (3)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->1->>b=eq.B",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              {
+                "a": "A"
+              },
+              {
+                "b": "B"
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter by array indexes (4)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->1->b->>1=eq.5",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              {
+                "a": [
+                  1,
+                  2,
+                  3
+                ]
+              },
+              {
+                "b": [
+                  4,
+                  5
+                ]
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter jsonb (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/jsonb_test?data=eq.{\"e\":1}",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 4,
+            "data": {
+              "e": 1
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter jsonb (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/jsonb_test?data->a=eq.{\"b\":2}",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1,
+            "data": {
+              "a": {
+                "b": 2
+              }
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter jsonb (3)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/jsonb_test?data->c=eq.[1,2,3]",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 2,
+            "data": {
+              "c": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter jsonb (4)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/jsonb_test?data->0=eq.{\"d\":\"test\"}",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 3,
+            "data": [
+              {
+                "d": "test"
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter composite type field"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/fav_numbers?num->>i=gt.0.5",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "num": {
+              "r": 0.6,
+              "i": 0.6
+            },
+            "person": "B"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter array item (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&numbers->0=eq.1",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 0
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter array item (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&numbers->>0=eq.11",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter array item (3)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&numbers_mult->1->1=eq.5",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 0
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "filtering response",
+        "can filter array item (4)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&numbers_mult->2->>2=eq.19",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by a json column property asc"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_table?order=data->>id.asc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": {
+              "id": 0
+            }
+          },
+          {
+            "data": {
+              "id": 1,
+              "foo": {
+                "bar": "baz"
+              }
+            }
+          },
+          {
+            "data": {
+              "id": 3
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by a json column with two level property nulls first"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_table?order=data->foo->>bar.nullsfirst",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": {
+              "id": 3
+            }
+          },
+          {
+            "data": {
+              "id": 0
+            }
+          },
+          {
+            "data": {
+              "id": 1,
+              "foo": {
+                "bar": "baz"
+              }
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by composite type field (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/fav_numbers?order=num->i.asc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "num": {
+              "r": 0.5,
+              "i": 0.5
+            },
+            "person": "A"
+          },
+          {
+            "num": {
+              "r": 0.6,
+              "i": 0.6
+            },
+            "person": "B"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by composite type field (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/fav_numbers?order=num->>i.desc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "num": {
+              "r": 0.6,
+              "i": 0.6
+            },
+            "person": "B"
+          },
+          {
+            "num": {
+              "r": 0.5,
+              "i": 0.5
+            },
+            "person": "A"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by array item (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&order=numbers->0.desc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 0
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by array item (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&order=numbers->1.asc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 0
+          },
+          {
+            "id": 1
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by array item (3)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&order=numbers_mult->0->0.desc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1
+          },
+          {
+            "id": 0
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "ordering response",
+        "orders by array item (4)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/arrays?select=id&order=numbers_mult->2->2.asc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "id": 0
+          },
+          {
+            "id": 1
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "Patching record, in a nonempty table",
+        "can set a json column to escaped value"
+      ],
+      "request": {
+        "method": "PATCH",
+        "path": "/json_table?data->>id=eq.3",
+        "headers": [
+          [
+            "Prefer",
+            "return=representation"
+          ]
+        ],
+        "body": "{\"data\":{\"id\":\" \\\"escaped\"}}"
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": {
+              "id": " \"escaped"
+            }
+          }
+        ],
+        "bodyExact": true,
+        "headers": [],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "json array negative index",
+        "can select with negative indexes (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->>-1::int&id=in.(1,2)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": 3
+          },
+          {
+            "data": 6
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "json array negative index",
+        "can select with negative indexes (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->0->>-2::int&id=in.(3,4)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": 8
+          },
+          {
+            "data": 7
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "json array negative index",
+        "can select with negative indexes (3)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->-2->>a&id=in.(5,6)",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "a": "A"
+          },
+          {
+            "a": "[1,2,3]"
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "json array negative index",
+        "can filter with negative indexes (1)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->>-3=eq.1",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "json array negative index",
+        "can filter with negative indexes (2)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->-1->>-3=eq.11",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              [
+                9,
+                8,
+                7
+              ],
+              [
+                11,
+                12,
+                13
+              ]
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "json array negative index",
+        "can filter with negative indexes (3)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->-1->>b=eq.B",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              {
+                "a": "A"
+              },
+              {
+                "b": "B"
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "json array negative index",
+        "can filter with negative indexes (4)"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data&data->-1->b->>-1=eq.5",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "data": [
+              {
+                "a": [
+                  1,
+                  2,
+                  3
+                ]
+              },
+              {
+                "b": [
+                  4,
+                  5
+                ]
+              }
+            ]
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "gives a meaningful error on bad syntax"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/json_arr?select=data->>--34",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 400,
+        "body": {
+          "details": "unexpected \"-\" expecting digit",
+          "message": "\"failed to parse select parameter (data->>--34)\" (line 1, column 9)",
+          "code": "PGRST100",
+          "hint": null
+        },
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    },
+    {
+      "description": [
+        "works when an RPC returns a dynamic TABLE with a composite type"
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/rpc/returns_complex?select=val->r&val->i=gt.0.5&order=val->>i.desc",
+        "headers": [],
+        "body": null
+      },
+      "expected": {
+        "status": 200,
+        "body": [
+          {
+            "r": 0.3
+          },
+          {
+            "r": 0.2
+          }
+        ],
+        "bodyExact": true,
+        "headers": [
+          [
+            "Content-Type",
+            "application/json; charset=utf-8"
+          ]
+        ],
+        "headersAbsent": [],
+        "headersContain": []
+      }
+    }
+  ]
+}
