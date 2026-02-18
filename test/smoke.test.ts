@@ -1,9 +1,7 @@
 // Smoke test: verify the test registration and runtime work with a mock handler
-import { describe, it, expect, beforeAll } from "bun:test";
-import type { TestSpec } from "../config.ts";
-import { registerSpecs } from "../register.ts";
-import { executeRequest } from "../client.ts";
-import { expectResponse } from "../matchers.ts";
+import { describe, it, expect } from "bun:test";
+import { executeRequest } from "./lib/client.ts";
+import { expectResponse } from "./lib/matchers.ts";
 
 // Simple mock handler
 const mockHandler = (req: Request): Response => {

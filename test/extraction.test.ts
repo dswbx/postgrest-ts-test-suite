@@ -1,6 +1,6 @@
 // Validates the structural integrity of extracted JSON specs
 import { describe, it, expect } from "bun:test";
-import type { TestSpec, TestCase } from "../config.ts";
+import type { TestSpec } from "./lib/index.ts";
 
 const SPEC_FILES = [
   "query",
