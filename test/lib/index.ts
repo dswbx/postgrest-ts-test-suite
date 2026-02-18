@@ -3,8 +3,6 @@
 import { beforeAll } from "bun:test";
 import type { TestSuiteOptions, TestSpec } from "./config.ts";
 import { registerSpecs } from "./register.ts";
-
-export type { TestSuiteOptions, TestSpec } from "./config.ts";
 export { executeRequest } from "./client.ts";
 export { expectResponse } from "./matchers.ts";
 
@@ -31,8 +29,7 @@ function loadSpecs(options: TestSuiteOptions): TestSpec[] {
          (f: string) => f.endsWith(".json") && !f.startsWith("_")
       );
    } catch {
-      console.warn(`No specs directory found at ${specsDir}`);
-      return [];
+      throw new Error(`No specs directory found at ${specsDir}`);
    }
 
    let specs: TestSpec[] = files.map((f: string) => {
