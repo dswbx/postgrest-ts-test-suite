@@ -1,7 +1,7 @@
 // Main export: definePostgrestTests(options)
 
 import { beforeAll } from "bun:test";
-import type { TestSuiteOptions, TestSpec } from "./config.ts";
+import type { MatchPattern, TestSuiteOptions, TestSpec } from "./config.ts";
 import { registerSpecs } from "./register.ts";
 export { executeRequest } from "./client.ts";
 export { expectResponse } from "./matchers.ts";
@@ -49,11 +49,21 @@ function loadSpecs(options: TestSuiteOptions): TestSpec[] {
    if (options.skip?.length) {
       specs = specs.filter(
          (s) =>
-            !options.skip!.some((name) =>
-               s.file.toLowerCase().includes(name.toLowerCase())
-            )
+            !options.skip!.some((pattern) => matchesPattern(s.file, pattern))
       );
    }
 
    return specs;
+}
+
+function matchesPattern(value: string, pattern: MatchPattern): boolean {
+   if (typeof pattern === "string") {
+      return value.toLowerCase().includes(pattern.toLowerCase());
+   }
+
+   const prevLastIndex = pattern.lastIndex;
+   pattern.lastIndex = 0;
+   const matched = pattern.test(value);
+   pattern.lastIndex = prevLastIndex;
+   return matched;
 }

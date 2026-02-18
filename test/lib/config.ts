@@ -1,5 +1,7 @@
 // TestSuiteOptions type, defaults, validation
 
+export type MatchPattern = string | RegExp;
+
 export interface TestSuiteOptions {
   // URL string → real HTTP requests via fetch()
   // Handler fn → calls directly (e.g. Bun.serve's fetch handler)
@@ -9,16 +11,16 @@ export interface TestSuiteOptions {
   setup?: () => Promise<void> | void;
 
   // skip test files by name, e.g. ["postgis", "unicode"]
-  skip?: string[];
+  skip?: MatchPattern[];
 
   // only run these, e.g. ["query", "insert"]
   only?: string[];
 
   // skip individual tests by description substring
-  skipTests?: string[];
+  skipTests?: MatchPattern[];
 
   // skip configs, e.g. ["max-rows", "plan-enabled"]
-  skipConfigs?: string[];
+  skipConfigs?: MatchPattern[];
 }
 
 export interface TestSpec {

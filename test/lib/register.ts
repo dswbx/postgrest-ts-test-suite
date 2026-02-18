@@ -1,7 +1,7 @@
 // Reads JSON spec files, registers bun:test cases
 
 import { describe, it } from "bun:test";
-import type { TestSuiteOptions, TestSpec } from "./config.ts";
+import type { MatchPattern, TestSuiteOptions, TestSpec } from "./config.ts";
 import { executeRequest } from "./client.ts";
 import { expectResponse } from "./matchers.ts";
 
@@ -11,7 +11,7 @@ export function registerSpecs(
 ) {
   for (const spec of specs) {
     // Skip by config
-    if (options.skipConfigs?.includes(spec.config)) continue;
+    if (options.skipConfigs?.some((pattern) => matchesExactPattern(spec.config, pattern))) continue;
 
     describe(spec.file, () => {
       // Group tests by their top-level description
@@ -55,7 +55,7 @@ function registerGroup(
 
       // Skip by description substring
       const fullDesc = tc.description.join(" > ");
-      if (options.skipTests?.some((s: string) => fullDesc.includes(s))) {
+      if (options.skipTests?.some((pattern) => matchesPattern(fullDesc, pattern))) {
         it.skip(testName, () => {});
         continue;
       }
@@ -70,4 +70,28 @@ function registerGroup(
       registerGroup(subName, subTests, depth + 1, options);
     }
   });
+}
+
+function matchesPattern(value: string, pattern: MatchPattern): boolean {
+  if (typeof pattern === "string") {
+    return value.includes(pattern);
+  }
+
+  const prevLastIndex = pattern.lastIndex;
+  pattern.lastIndex = 0;
+  const matched = pattern.test(value);
+  pattern.lastIndex = prevLastIndex;
+  return matched;
+}
+
+function matchesExactPattern(value: string, pattern: MatchPattern): boolean {
+  if (typeof pattern === "string") {
+    return value === pattern;
+  }
+
+  const prevLastIndex = pattern.lastIndex;
+  pattern.lastIndex = 0;
+  const matched = pattern.test(value);
+  pattern.lastIndex = prevLastIndex;
+  return matched;
 }

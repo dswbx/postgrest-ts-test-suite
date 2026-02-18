@@ -23,7 +23,19 @@ Requirements:
 - `psql` (PostgreSQL client)
 - `bun`
 
-## Use in your project
+## Usage
+
+Make sure to link `postgrest-test-suite`, then add the link to your project's `package.json`:
+
+```bash
+bun link
+```
+
+```json
+"devDependencies": {
+  "postgrest-test-suite": "link:postgrest-test-suite"
+}
+```
 
 ```typescript
 // my-project/test/postgrest.test.ts
@@ -41,17 +53,9 @@ definePostgrestTests({
   },
 
   // optional filters
-  skip: ["postgis", "unicode"],
+  skip: ["postgis", /unicode/i],
   only: ["query", "range"],
-  skipTests: ["some substring to skip"],
-  skipConfigs: ["max-rows", "plan-enabled"],
+  skipTests: ["some substring to skip", /legacy endpoint/i],
+  skipConfigs: ["max-rows", /plan-enabled/],
 });
-```
-
-## Development
-
-### Setup
-
-```bash
-bun install
 ```
