@@ -1,8 +1,8 @@
 # postgrest-test-suite
 
-Extracted PostgREST test cases as JSON, runnable with bun:test.
+Extracted PostgREST 498 test cases with 1428 assertions as JSON, runnable with bun:test.
 
-## Run the example (top-to-bottom)
+## Verify the port 
 
 ```bash
 bun install
@@ -22,6 +22,22 @@ Requirements:
 - `gh` (GitHub CLI, used to fetch fixture SQL)
 - `psql` (PostgreSQL client)
 - `bun`
+
+Output:
+
+```
+$ bun run postgres/run.ts
+[...]
+postgres/postgrest.test.ts:
+[...]
+(pass) JsonOperator > json array negative index > can filter with negative indexes (3) [1.39ms]
+(pass) JsonOperator > json array negative index > can filter with negative indexes (4) [1.22ms]
+
+ 498 pass
+ 0 fail
+ 1428 expect() calls
+Ran 498 tests across 1 file. [1258.00ms]
+```
 
 ## Usage
 
