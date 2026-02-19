@@ -1,6 +1,6 @@
 # postgrest-test-suite
 
-Extracted PostgREST 498 test cases with 1428 assertions as JSON, runnable with bun:test.
+Extracted PostgREST test suite with 498 test cases and 1428 assertions as JSON, runnable with bun:test.
 
 ## Verify the port 
 
