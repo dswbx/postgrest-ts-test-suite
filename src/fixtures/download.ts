@@ -1,11 +1,12 @@
-// Downloads PostgREST fixture SQL from GitHub and loads into postgres
+// Downloads PostgREST fixture SQL from GitHub into fixtures/sql/
 
 import { $ } from "bun";
+import { existsSync, mkdirSync, readFileSync, unlinkSync } from "node:fs";
 
 const REPO = "PostgREST/postgrest";
 const FIXTURES_REF = process.env.POSTGREST_FIXTURES_REF ?? "main";
 const FIXTURES_PATH = "test/spec/fixtures";
-const FIXTURES_DIR = new URL("./fixtures/", import.meta.url).pathname;
+const FIXTURES_DIR = new URL("./sql/", import.meta.url).pathname;
 
 const SQL_FILES = [
   "database.sql",
@@ -18,7 +19,6 @@ const SQL_FILES = [
 ];
 
 async function downloadFixtures() {
-  const { mkdirSync, existsSync, readFileSync, unlinkSync } = require("node:fs");
   if (!existsSync(FIXTURES_DIR)) mkdirSync(FIXTURES_DIR, { recursive: true });
   const refMarkerPath = `${FIXTURES_DIR}.ref`;
   const currentRef = existsSync(refMarkerPath)
@@ -43,36 +43,7 @@ async function downloadFixtures() {
   }
 
   await Bun.write(refMarkerPath, `${FIXTURES_REF}\n`);
+  console.log(`Fixtures downloaded (ref: ${FIXTURES_REF})`);
 }
 
-async function loadFixtures(
-  host = "localhost",
-  port = 5432,
-  user = "postgres",
-  password = "postgres",
-  database = "postgres"
-) {
-  const pgUrl = `postgres://${user}:${password}@${host}:${port}/${database}`;
-
-  for (const file of SQL_FILES) {
-    console.log(`Loading ${file}...`);
-    await $`psql ${pgUrl} -f ${FIXTURES_DIR}${file} -v ON_ERROR_STOP=1 -v PGUSER=${user} -v DBNAME=${database}`.quiet();
-  }
-}
-
-export async function setupFixtures(opts?: {
-  host?: string;
-  port?: number;
-  user?: string;
-  password?: string;
-  database?: string;
-}) {
-  await downloadFixtures();
-  await loadFixtures(
-    opts?.host,
-    opts?.port,
-    opts?.user,
-    opts?.password,
-    opts?.database
-  );
-}
+downloadFixtures();

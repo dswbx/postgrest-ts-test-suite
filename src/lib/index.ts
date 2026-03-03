@@ -1,6 +1,6 @@
 // Main export: definePostgrestTests(options)
 
-import { beforeAll } from "bun:test";
+import { afterAll, beforeAll } from "bun:test";
 import type { MatchPattern, TestSuiteOptions, TestSpec } from "./config.ts";
 import { registerSpecs } from "./register.ts";
 export { executeRequest } from "./client.ts";
@@ -9,6 +9,9 @@ export { expectResponse } from "./matchers.ts";
 export function definePostgrestTests(options: TestSuiteOptions) {
    if (options.setup) {
       beforeAll(options.setup);
+   }
+   if (options.teardown) {
+      afterAll(options.teardown);
    }
 
    // Load and filter spec files

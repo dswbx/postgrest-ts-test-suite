@@ -496,8 +496,10 @@ INSERT INTO zone VALUES (2, 'zone 2', 2, 1);
 INSERT INTO zone VALUES (3, 'store 3', 3, 1);
 INSERT INTO zone VALUES (4, 'store 4', 3, 1);
 
+-- @skip-if-missing: file_fdw
 -- for foreign table projects_dump
 copy (select id, name, client_id from projects) to '/tmp/projects_dump.csv' with csv;
+-- @end-skip
 
 TRUNCATE TABLE "UnitTest" CASCADE;
 INSERT INTO "UnitTest" VALUES (1, 'unit test 1');
@@ -541,6 +543,7 @@ select
   '2018-10-11'
 from generate_series(1, 6);
 
+-- @skip-if-missing: ltree
 TRUNCATE TABLE ltree_sample CASCADE;
 INSERT INTO ltree_sample VALUES ('Top');
 INSERT INTO ltree_sample VALUES ('Top.Science');
@@ -555,9 +558,12 @@ INSERT INTO ltree_sample VALUES ('Top.Collections.Pictures.Astronomy');
 INSERT INTO ltree_sample VALUES ('Top.Collections.Pictures.Astronomy.Stars');
 INSERT INTO ltree_sample VALUES ('Top.Collections.Pictures.Astronomy.Galaxies');
 INSERT INTO ltree_sample VALUES ('Top.Collections.Pictures.Astronomy.Astronauts');
+-- @end-skip
 
+-- @skip-if-missing: isn
 TRUNCATE TABLE isn_sample CASCADE;
 INSERT INTO isn_sample VALUES ('978-0-393-04002-9', 'Mathematics: From the Birth of Numbers');
+-- @end-skip
 
 TRUNCATE TABLE "Server Today" CASCADE;
 COPY "Server Today" ("cHostname", "Just A Server Model") FROM STDIN CSV DELIMITER '|';
@@ -757,6 +763,7 @@ INSERT INTO private.internal_job (id, parent_id) VALUES (2, 1);
 TRUNCATE TABLE test.test CASCADE;
 INSERT INTO test.test (id, parent_id) VALUES (1, null), (2, 1);
 
+-- @skip-if-missing: postgis
 TRUNCATE TABLE shops CASCADE;
 INSERT INTO shops(id, address, shop_geom) VALUES(1, '1369 Cambridge St', 'SRID=4326;POINT(-71.10044 42.373695)');
 INSERT INTO shops(id, address, shop_geom) VALUES(2, '757 Massachusetts Ave', 'SRID=4326;POINT(-71.10543 42.366432)');
@@ -767,6 +774,7 @@ INSERT INTO shop_bles(id, name, coords, shop_id, range_area) VALUES(1, 'Beacon-1
   extensions.ST_GeomFromGeoJSON('{"type": "Polygon", "coordinates": [ [ [ -71.10045254230499, 42.37387083326593 ], [ -71.10048070549963, 42.37377126199953 ], [ -71.10039688646793, 42.37375838212269 ], [ -71.10037006437777, 42.37385844878863 ], [ -71.10045254230499, 42.37387083326593 ] ] ]}'));
 INSERT INTO shop_bles(id, name, coords, shop_id, range_area) VALUES(2, 'Beacon-2', 'SRID=4326;POINT(-71.10044 42.373695)', 1,
   extensions.ST_GeomFromGeoJSON('{"type": "Polygon", "coordinates": [ [ [ -71.10034391283989, 42.37385299961788 ], [ -71.10036939382553, 42.373756895982865 ], [ -71.1002916097641, 42.373745997623224 ], [ -71.1002641171217, 42.37384408279195 ], [ -71.10034391283989, 42.37385299961788 ] ] ]}'));
+-- @end-skip
 
 TRUNCATE TABLE "SPECIAL ""@/\#~_-".languages CASCADE;
 INSERT INTO "SPECIAL ""@/\#~_-".languages (id, name) VALUES (1, 'English'), (2, 'Spanish');
@@ -834,8 +842,10 @@ INSERT INTO table_a(id, name) VALUES (1, 'Not null 1'), (2, null), (3, 'Not null
 TRUNCATE TABLE table_b CASCADE;
 INSERT INTO table_b(table_a_id, name) VALUES (1, 'Test 1'), (2, 'Test 2'), (null, 'Test 3');
 
+-- @skip-if-missing: postgis
 TRUNCATE TABLE lines CASCADE;
 insert into lines values (1, 'line-1', 'LINESTRING(1 1,5 5)'::extensions.geometry), (2, 'line-2', 'LINESTRING(2 2,6 6)'::extensions.geometry);
+-- @end-skip
 
 TRUNCATE TABLE timestamps CASCADE;
 INSERT INTO timestamps VALUES ('2023-10-18 12:37:59.611000+0000');

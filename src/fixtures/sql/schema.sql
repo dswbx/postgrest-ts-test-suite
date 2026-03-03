@@ -1524,6 +1524,7 @@ create table zone(
   zone_type_id integer,
   space_id integer references space(id));
 
+-- @skip-if-missing: file_fdw
 -- foreign table tests
 create extension file_fdw;
 
@@ -1539,6 +1540,7 @@ comment on foreign table projects_dump is
 $$A temporary projects dump
 
 Just a test for foreign tables$$;
+-- @end-skip
 
 create table "UnitTest"(
   "idUnitTest" integer primary key,
@@ -1792,6 +1794,7 @@ create function test.test_arg(my_arg public.my_type) returns text as $$
   select 'foobar'::text;
 $$ language sql;
 
+-- @skip-if-missing: ltree
 create extension if not exists ltree with schema public;
 
 create table test.ltree_sample (
@@ -1801,7 +1804,9 @@ create table test.ltree_sample (
 CREATE FUNCTION test.number_of_labels(test.ltree_sample) RETURNS integer AS $$
   SELECT nlevel($1.path)
 $$ language sql;
+-- @end-skip
 
+-- @skip-if-missing: isn
 create extension if not exists isn with schema extensions;
 
 create table test.isn_sample (
@@ -1812,6 +1817,7 @@ create table test.isn_sample (
 create function test.is_valid_isbn(input text) returns boolean as $$
   select is_valid(input::isbn);
 $$ language sql;
+-- @end-skip
 
 create table "Server Today"(
   "cHostname" text,
@@ -2643,6 +2649,7 @@ CREATE TABLE test.test (
 CREATE OR REPLACE VIEW test.view_test AS
   SELECT id FROM test.test;
 
+-- @skip-if-missing: postgis
 create extension if not exists postgis with schema extensions;
 
 create table shops (
@@ -2662,6 +2669,7 @@ create table shop_bles (
 create function get_shop(id int) returns shops as $$
   select * from shops where id = $1;
 $$ language sql;
+-- @end-skip
 
 CREATE TABLE "SPECIAL ""@/\#~_-".languages(
   id INT PRIMARY KEY,
@@ -3412,6 +3420,7 @@ as $$ begin
   return query select items2.id from items2 where items2.id=search2.id;
 end$$;
 
+-- @skip-if-missing: postgis
 create table test.lines (
   id   int primary key
 , name text
@@ -3475,6 +3484,7 @@ create aggregate test.geo2json_agg(test.shop_bles) (
 , stype = "application/vnd.geo2+json"
 , sfunc = geo2json_trans
 );
+-- @end-skip
 
 create table ov_json ();
 
@@ -3491,6 +3501,7 @@ create aggregate test.ov_json_agg(ov_json) (
 , sfunc = ov_json_trans
 );
 
+-- @skip-if-missing: postgis
 -- override application/geo+json
 create or replace function test.lines_geojson_trans (state jsonb, next test.lines)
 returns "application/geo+json" as $$
@@ -3518,6 +3529,7 @@ create aggregate test.lines_geojson_agg (test.lines) (
 , sfunc = lines_geojson_trans
 , finalfunc = lines_geojson_final
 );
+-- @end-skip
 
 -- override application/vnd.pgrst.object
 create or replace function test.pgrst_obj_json_trans (state "application/vnd.pgrst.object", next anyelement)
@@ -3552,6 +3564,7 @@ create aggregate test.tsv_agg (test.projects) (
 , finalfunc = tsv_final
 );
 
+-- @skip-if-missing: postgis
 -- override CSV with BOM plus attachment
 create or replace function test.bom_csv_trans (state text, next test.lines)
 returns "text/csv" as $$
@@ -3572,6 +3585,7 @@ create aggregate test.bom_csv_agg (test.lines) (
 , sfunc = bom_csv_trans
 , finalfunc = bom_csv_final
 );
+-- @end-skip
 
 create table empty_string as select 1 as id, ''::text as string;
 
